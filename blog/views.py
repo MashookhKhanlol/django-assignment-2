@@ -16,7 +16,10 @@ def register(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Only POST allowed'}, status=405)
     try:
+        print(f"Request body: {request.body}")
+        print(f"Content-Type: {request.headers.get('Content-Type')}")
         data = json.loads(request.body)
+        print(f"Parsed data: {data}")
         username = data.get('username')
         email = data.get('email')
         password = data.get('password')
@@ -26,7 +29,11 @@ def register(request):
             return JsonResponse({'error': 'Username already exists'}, status=400)
         user = User.objects.create_user(username=username, email=email, password=password)
         return JsonResponse({'message': 'User registered successfully'})
+    except json.JSONDecodeError as e:
+        print(f"JSON decode error: {e}")
+        return JsonResponse({'error': f'Invalid JSON: {str(e)}'}, status=400)
     except Exception as e:
+        print(f"General error: {e}")
         return JsonResponse({'error': str(e)}, status=400)
 
 @csrf_exempt
